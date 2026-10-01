@@ -26,8 +26,8 @@ function PlyaceApp() {
   const { currentUser, currentStatus, applications, applyToJob } = usePlyace();
   const isAdmin = currentUser.role === "admin";
 
-  // Top level views: "app", "landing", "auth"
-  const [mainView, setMainView] = useState<"app" | "landing" | "auth">("app");
+  // Top level views: "landing" (default for visitors), "app", "auth"
+  const [mainView, setMainView] = useState<"app" | "landing" | "auth">("landing");
   const [authMode, setAuthMode] = useState<"register" | "login">("register");
 
   const [activeTab, setActiveTab] = useState<ActiveTab>(
