@@ -17,12 +17,18 @@ import { ChatBotView } from "@/components/ChatBotModal";
 import { AdminPortal } from "@/components/AdminPortal";
 import { JobDetailModal } from "@/components/JobDetailModal";
 import { AdminSimulateModal } from "@/components/AdminSimulateModal";
+import { LandingPageView } from "@/components/LandingPageView";
+import { AuthView } from "@/components/AuthView";
 import { Job } from "@/lib/types";
 import { Bot, Sparkles, MessageSquare } from "lucide-react";
 
 function PlyaceApp() {
   const { currentUser, currentStatus, applications, applyToJob } = usePlyace();
   const isAdmin = currentUser.role === "admin";
+
+  // Top level views: "app", "landing", "auth"
+  const [mainView, setMainView] = useState<"app" | "landing" | "auth">("app");
+  const [authMode, setAuthMode] = useState<"register" | "login">("register");
 
   const [activeTab, setActiveTab] = useState<ActiveTab>(
     isAdmin ? "admin_overview" : "dashboard"
@@ -53,10 +59,46 @@ function PlyaceApp() {
       )
     : false;
 
+  // Render Public Landing Page
+  if (mainView === "landing") {
+    return (
+      <LandingPageView
+        onEnterApp={() => setMainView("app")}
+        onOpenRegister={() => {
+          setAuthMode("register");
+          setMainView("auth");
+        }}
+        onOpenLogin={() => {
+          setAuthMode("login");
+          setMainView("auth");
+        }}
+      />
+    );
+  }
+
+  // Render Registration or Sign In view
+  if (mainView === "auth") {
+    return (
+      <AuthView
+        initialMode={authMode}
+        onSuccess={() => setMainView("app")}
+        onBackToLanding={() => setMainView("landing")}
+      />
+    );
+  }
+
+  // Main Authenticated Portal
   return (
     <div className="min-h-screen flex flex-col bg-[#F8FAFC]">
       {/* Top Navigation */}
-      <Navbar onOpenSimulate={() => setShowSimulateModal(true)} />
+      <Navbar
+        onOpenSimulate={() => setShowSimulateModal(true)}
+        onOpenLanding={() => setMainView("landing")}
+        onOpenRegister={() => {
+          setAuthMode("register");
+          setMainView("auth");
+        }}
+      />
 
       {/* 60-day expiry warning for passouts */}
       <ExpiryBanner />

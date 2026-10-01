@@ -15,7 +15,13 @@ import {
   GraduationCap,
 } from "lucide-react";
 
-export function Navbar({ onOpenSimulate }: { onOpenSimulate?: () => void }) {
+interface NavbarProps {
+  onOpenSimulate?: () => void;
+  onOpenLanding?: () => void;
+  onOpenRegister?: () => void;
+}
+
+export function Navbar({ onOpenSimulate, onOpenLanding, onOpenRegister }: NavbarProps) {
   const {
     currentUser,
     switchUserById,
@@ -89,8 +95,26 @@ export function Navbar({ onOpenSimulate }: { onOpenSimulate?: () => void }) {
           <div className="hidden md:flex items-center">{getStatusBadge()}</div>
         </div>
 
-        {/* Right Actions: Simulated Date + Points + Demo Switcher */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        {/* Right Actions: Landing link + Register link + Simulated Date + Points + Demo Switcher */}
+        <div className="flex items-center gap-2 sm:gap-2.5">
+          {onOpenLanding && (
+            <button
+              onClick={onOpenLanding}
+              className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#64748B] hover:text-[#2563EB] hover:bg-slate-50 rounded-xl transition-colors"
+            >
+              Public Landing
+            </button>
+          )}
+
+          {onOpenRegister && (
+            <button
+              onClick={onOpenRegister}
+              className="hidden sm:flex items-center gap-1 px-3 py-1.5 rounded-xl border border-[#10B981]/30 bg-[#10B981]/10 text-[#059669] hover:bg-[#10B981]/20 font-bold text-xs transition-colors"
+            >
+              + Register
+            </button>
+          )}
+
           {/* Simulated Date Quick Pill */}
           <button
             onClick={onOpenSimulate}
