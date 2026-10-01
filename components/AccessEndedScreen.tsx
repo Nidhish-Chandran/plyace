@@ -2,11 +2,12 @@
 
 import React from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { usePlyace } from "@/lib/store";
-import { Lock, Mail, ShieldAlert, ArrowRight, RotateCcw } from "lucide-react";
+import { Lock, Mail, ShieldAlert, ArrowRight } from "lucide-react";
 
 export function AccessEndedScreen({ onOpenSimulate }: { onOpenSimulate?: () => void }) {
-  const { currentUser, switchUserById, resetToDefaults } = usePlyace();
+  const { currentUser } = usePlyace();
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center p-6">
@@ -70,21 +71,13 @@ export function AccessEndedScreen({ onOpenSimulate }: { onOpenSimulate?: () => v
         </div>
 
         <div className="pt-6 border-t border-[#E2E8F0]">
-          <p className="text-xs text-[#64748B] mb-3">Switch Account View:</p>
-          <div className="flex flex-wrap gap-2 justify-center">
-            <button
-              onClick={() => switchUserById("usr_student_1")}
-              className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-xs font-semibold text-[#0F172A] transition-colors"
-            >
-              Switch to Aditi (Student)
-            </button>
-            <button
-              onClick={() => switchUserById("usr_admin_1")}
-              className="px-3 py-1.5 rounded-lg bg-[#1E3A8A]/10 hover:bg-[#1E3A8A]/20 text-xs font-semibold text-[#1E3A8A] transition-colors"
-            >
-              Switch to Admin (Extend Access)
-            </button>
-          </div>
+          <Link
+            href="/login"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#2563EB] hover:underline"
+          >
+            <span>Sign In to Another Institutional Account</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
         </div>
       </div>
     </div>

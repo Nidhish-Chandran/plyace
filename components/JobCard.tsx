@@ -192,7 +192,7 @@ export function JobCard({ job, onApply, onViewDetails, isApplied }: JobCardProps
                 : "bg-slate-200 text-slate-400 cursor-not-allowed"
             }`}
           >
-            <span>One-Click Apply</span>
+            <span>Register for Drive</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
         )}

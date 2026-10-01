@@ -21,21 +21,16 @@ export default function LoginPage() {
   const { login, switchUserById } = usePlyace();
 
   const [roleTab, setRoleTab] = useState<"student" | "admin">("student");
-  const [email, setEmail] = useState("aditi.rao@college.edu");
-  const [password, setPassword] = useState("student123");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const handleRoleChange = (role: "student" | "admin") => {
     setRoleTab(role);
     setError(null);
-    if (role === "student") {
-      setEmail("aditi.rao@college.edu");
-      setPassword("student123");
-    } else {
-      setEmail("placement.head@college.edu");
-      setPassword("admin123");
-    }
+    setEmail("");
+    setPassword("");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -195,38 +190,6 @@ export default function LoginPage() {
               )}
             </button>
           </form>
-
-          {/* Quick Institutional Credentials */}
-          <div className="pt-2 border-t border-[#E2E8F0] text-[11px] text-[#64748B] space-y-2">
-            <span className="font-semibold block text-[#0F172A]">Default Institutional Credentials:</span>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => {
-                  handleRoleChange("student");
-                  setEmail("aditi.rao@college.edu");
-                  setPassword("student123");
-                }}
-                className="p-2 rounded-xl bg-slate-50 border border-slate-200 hover:border-[#2563EB] text-left transition-all"
-              >
-                <div className="font-bold text-[#2563EB]">Student Demo</div>
-                <div className="text-[10px] truncate">aditi.rao@college.edu</div>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  handleRoleChange("admin");
-                  setEmail("placement.head@college.edu");
-                  setPassword("admin123");
-                }}
-                className="p-2 rounded-xl bg-slate-50 border border-slate-200 hover:border-[#1E3A8A] text-left transition-all"
-              >
-                <div className="font-bold text-[#1E3A8A]">Officer Demo</div>
-                <div className="text-[10px] truncate">placement.head@college.edu</div>
-              </button>
-            </div>
-          </div>
 
           <div className="text-center pt-2">
             <p className="text-xs text-[#64748B]">

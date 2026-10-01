@@ -74,6 +74,7 @@ export const INITIAL_JOBS: Job[] = [
     packageStipend: "₹32.5 LPA",
     location: "Bangalore, India",
     campusOnly: true,
+    registrationLink: "https://careers.google.com/jobs/results/?q=software%20engineer%20bangalore",
     postedDate: "2026-09-28",
   },
   {
@@ -90,6 +91,7 @@ export const INITIAL_JOBS: Job[] = [
     packageStipend: "₹24.0 LPA",
     location: "Hyderabad, India",
     campusOnly: false,
+    registrationLink: "https://www.goldmansachs.com/careers/students/programs/campus-recruiting.html",
     postedDate: "2026-09-29",
   },
   {
@@ -106,6 +108,7 @@ export const INITIAL_JOBS: Job[] = [
     packageStipend: "₹65,000 / month",
     location: "Bangalore (Hybrid)",
     campusOnly: true,
+    registrationLink: "https://jobs.cisco.com/jobs/SearchJobs/?listFilterMode=1",
     postedDate: "2026-09-25",
   },
   {
@@ -122,6 +125,7 @@ export const INITIAL_JOBS: Job[] = [
     packageStipend: "₹7.5 LPA",
     location: "Pan-India",
     campusOnly: false,
+    registrationLink: "https://nextstep.tcs.com/campus/#/digital-cadence",
     postedDate: "2026-09-30",
   },
   {
@@ -138,6 +142,7 @@ export const INITIAL_JOBS: Job[] = [
     packageStipend: "₹8.5 LPA",
     location: "Chennai / Tenkasi",
     campusOnly: false,
+    registrationLink: "https://www.zoho.com/careers/jobdetails/?job_id=457313000000000",
     postedDate: "2026-09-27",
   },
   {
@@ -154,6 +159,7 @@ export const INITIAL_JOBS: Job[] = [
     packageStipend: "₹80,000 / month",
     location: "Hyderabad, India",
     campusOnly: true,
+    registrationLink: "https://careers.microsoft.com/us/en/job/1789230/Intern-Software-Engineering",
     postedDate: "2026-09-26",
   },
 ];

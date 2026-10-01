@@ -176,18 +176,53 @@ export function JobDetailModal({ job, onClose, isApplied: externalIsApplied }: J
             </div>
           </div>
 
+          {/* Official Registration Link Provided by Placement Officer */}
+          {isEligible && (
+            <div className="p-4 rounded-2xl bg-[#2563EB]/5 border border-[#2563EB]/20 space-y-3">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h4 className="text-xs font-bold text-[#1E3A8A] flex items-center gap-1.5">
+                    <Building2 className="w-4 h-4 text-[#2563EB]" />
+                    <span>Official Drive Registration Link (CGPU Placement Cell)</span>
+                  </h4>
+                  <p className="text-[11px] text-[#64748B] mt-0.5">
+                    The placement officer has provided the official application link for this recruitment drive. You must complete your registration on this link before the deadline:
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                <input
+                  type="text"
+                  readOnly
+                  value={job.registrationLink || "https://forms.gle/cgpu-placement-drive"}
+                  className="flex-1 px-3 py-2 text-xs rounded-xl bg-white border border-[#E2E8F0] font-mono text-[#0F172A] select-all"
+                />
+                <a
+                  href={job.registrationLink || "https://forms.gle/cgpu-placement-drive"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-2 rounded-xl bg-[#2563EB] hover:bg-[#1E3A8A] text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-1.5 shrink-0"
+                >
+                  <span>Open Official Link</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </a>
+              </div>
+            </div>
+          )}
+
           {/* Application note for Admin review */}
           {isEligible && !isApplied && (
             <div>
               <label className="block text-xs font-semibold text-[#0F172A] mb-1.5">
-                Cover Note / Key Highlights (Optional for CGPU Review):
+                Application Confirmation / Notes (Optional for CGPU Records):
               </label>
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                placeholder="E.g., Cleared LeetCode 350+ questions, built distributed caching service in Go/Python..."
+                placeholder="E.g., Successfully submitted form on corporate portal, uploaded resume and marksheet..."
                 rows={2}
-                className="w-full px-3.5 py-2 text-xs rounded-xl border border-[#E2E8F0] focus:ring-2 focus:ring-[#2563EB] focus:outline-none bg-white text-[#0F172A]"
+                className="w-full px-3.5 py-2 text-xs rounded-xl border border-[#E2E8F0] focus:ring-2 focus:ring-[#2563EB] focus:outline-hidden bg-white text-[#0F172A]"
               />
             </div>
           )}
@@ -205,7 +240,7 @@ export function JobDetailModal({ job, onClose, isApplied: externalIsApplied }: J
           {isApplied ? (
             <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#1E3A8A]/10 text-[#1E3A8A] font-bold text-xs border border-[#1E3A8A]/20">
               <CheckCircle2 className="w-4 h-4 text-[#10B981]" />
-              Application Already Submitted
+              Registered & Tracked in Plyace
             </div>
           ) : (
             <button
@@ -213,12 +248,12 @@ export function JobDetailModal({ job, onClose, isApplied: externalIsApplied }: J
               disabled={!isEligible || !!submittedMessage}
               className={`px-6 py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-2 ${
                 isEligible && !submittedMessage
-                  ? "bg-[#2563EB] hover:bg-[#1E3A8A] text-white active:scale-95"
+                  ? "bg-[#10B981] hover:bg-emerald-700 text-white active:scale-95"
                   : "bg-slate-200 text-slate-400 cursor-not-allowed"
               }`}
             >
-              <span>Submit One-Click Application</span>
-              <ArrowRight className="w-4 h-4" />
+              <span>Record Registration in Tracker</span>
+              <CheckCircle2 className="w-4 h-4" />
             </button>
           )}
         </div>

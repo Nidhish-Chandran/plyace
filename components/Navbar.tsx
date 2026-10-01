@@ -204,54 +204,27 @@ export function Navbar({ onOpenSimulate }: NavbarProps) {
                   )}
                 </div>
 
-                <div className="py-1">
-                  <div className="px-3.5 py-1 text-[10px] font-bold uppercase tracking-wider text-[#64748B]">
-                    Switch Profile (Testing Roster)
+                <div className="py-2 px-3.5 space-y-1.5 text-xs text-[#64748B]">
+                  <div className="flex justify-between items-center text-[11px]">
+                    <span>Department:</span>
+                    <span className="font-semibold text-[#0F172A] truncate max-w-[130px]">{currentUser.branch}</span>
                   </div>
-                  {allUsers.map((user) => {
-                    const isSelected = user.id === currentUser.id;
-                    let tag = "Current Student";
-                    if (user.role === "admin") tag = "CGPU Admin";
-                    else if (user.id.includes("passout")) tag = "Passout (<18m)";
-                    else if (user.id.includes("expired")) tag = "Expired (>18m)";
-
-                    return (
-                      <button
-                        key={user.id}
-                        onClick={() => {
-                          switchUserById(user.id);
-                          setDropdownOpen(false);
-                        }}
-                        className={`w-full text-left px-3.5 py-2 flex items-center justify-between text-xs hover:bg-[#F8FAFC] transition-colors ${
-                          isSelected ? "bg-[#2563EB]/5 font-semibold text-[#2563EB]" : "text-[#0F172A]"
-                        }`}
-                      >
-                        <div className="flex items-center gap-2">
-                          <div
-                            className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs ${
-                              isSelected ? "bg-[#2563EB] text-white" : "bg-slate-200 text-slate-700"
-                            }`}
-                          >
-                            {user.name.charAt(0)}
-                          </div>
-                          <div>
-                            <div className="font-medium text-xs truncate max-w-[130px]">{user.name}</div>
-                          </div>
-                        </div>
-                        <span
-                          className={`text-[9px] px-1.5 py-0.5 rounded-full ${
-                            user.role === "admin"
-                              ? "bg-purple-100 text-purple-700 font-medium"
-                              : isSelected
-                              ? "bg-[#2563EB]/15 text-[#2563EB]"
-                              : "bg-slate-100 text-slate-600"
-                          }`}
-                        >
-                          {tag}
-                        </span>
-                      </button>
-                    );
-                  })}
+                  {currentUser.role === "student" && (
+                    <>
+                      <div className="flex justify-between items-center text-[11px]">
+                        <span>Batch:</span>
+                        <span className="font-semibold text-[#0F172A]">{currentUser.batch}</span>
+                      </div>
+                      <div className="flex justify-between items-center text-[11px]">
+                        <span>CGPA:</span>
+                        <span className="font-bold text-[#0F172A]">{currentUser.cgpa.toFixed(1)}</span>
+                      </div>
+                      <div className="flex justify-between items-center text-[11px]">
+                        <span>Points:</span>
+                        <span className="font-bold text-[#10B981]">{currentUser.points} pts</span>
+                      </div>
+                    </>
+                  )}
                 </div>
 
                 <div className="px-3.5 pt-2 pb-1 border-t border-[#E2E8F0] space-y-1">

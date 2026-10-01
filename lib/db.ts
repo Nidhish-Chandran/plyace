@@ -51,6 +51,7 @@ db.exec(`
     package_stipend TEXT NOT NULL,
     location TEXT NOT NULL,
     campus_only INTEGER NOT NULL DEFAULT 0,
+    registration_link TEXT,
     posted_date TEXT NOT NULL
   );
 
@@ -158,6 +159,13 @@ db.exec(`
     FOREIGN KEY (user_id) REFERENCES users(id)
   );
 `);
+
+// Safe SQLite migration for registration_link column
+try {
+  db.exec("ALTER TABLE jobs ADD COLUMN registration_link TEXT");
+} catch {
+  // column already exists
+}
 
 // Seed default institutional users if empty
 const userCount = db.prepare("SELECT count(*) as count FROM users").get() as { count: number };
@@ -529,6 +537,7 @@ function rowToJob(row: any): Job {
     packageStipend: row.package_stipend,
     location: row.location,
     campusOnly: Boolean(row.campus_only),
+    registrationLink: row.registration_link || "https://forms.gle/cgpu-placement-drive",
     postedDate: row.posted_date,
   };
 }
@@ -546,10 +555,11 @@ export function getJobById(id: string): Job | null {
 export function createJob(jobData: Omit<Job, "id" | "postedDate">): Job {
   const id = `job_${Date.now()}`;
   const postedDate = new Date().toISOString().split("T")[0];
+  const registrationLink = jobData.registrationLink || "https://forms.gle/cgpu-placement-drive";
 
   db.prepare(`
-    INSERT INTO jobs (id, company, company_logo, title, description, required_skills, min_cgpa, allowed_branches, max_backlogs, deadline, opp_type, package_stipend, location, campus_only, posted_date)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO jobs (id, company, company_logo, title, description, required_skills, min_cgpa, allowed_branches, max_backlogs, deadline, opp_type, package_stipend, location, campus_only, registration_link, posted_date)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).run(
     id,
     jobData.company,
@@ -565,11 +575,13 @@ export function createJob(jobData: Omit<Job, "id" | "postedDate">): Job {
     jobData.packageStipend,
     jobData.location,
     jobData.campusOnly ? 1 : 0,
+    registrationLink,
     postedDate
   );
 
   return {
     ...jobData,
+    registrationLink,
     id,
     postedDate,
   };

@@ -36,6 +36,7 @@ export interface Job {
   packageStipend: string;
   location: string;
   campusOnly?: boolean; // if true, passouts are ineligible
+  registrationLink?: string; // Official link provided by the placement officer to register for the drive
   postedDate: string;
 }
 

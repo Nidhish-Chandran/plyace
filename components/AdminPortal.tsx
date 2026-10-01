@@ -57,6 +57,7 @@ export function AdminPortal({ currentAdminTab, onOpenSimulate }: AdminPortalProp
     packageStipend: "₹12.0 LPA",
     location: "Bangalore, India",
     campusOnly: false,
+    registrationLink: "https://forms.gle/cgpu-placement-drive",
   });
 
   // Announcement state
@@ -85,6 +86,7 @@ export function AdminPortal({ currentAdminTab, onOpenSimulate }: AdminPortalProp
       packageStipend: newJob.packageStipend,
       location: newJob.location,
       campusOnly: newJob.campusOnly,
+      registrationLink: newJob.registrationLink || "https://forms.gle/cgpu-placement-drive",
     });
     setShowAddJobModal(false);
     confetti({ particleCount: 60, spread: 60, origin: { y: 0.6 } });
@@ -661,6 +663,23 @@ export function AdminPortal({ currentAdminTab, onOpenSimulate }: AdminPortalProp
                   onChange={(e) => setNewJob({ ...newJob, deadline: e.target.value })}
                   className="w-full px-3 py-2 rounded-xl border border-[#E2E8F0]"
                 />
+              </div>
+
+              <div>
+                <label className="block font-bold text-[#0F172A] mb-1">
+                  Official Drive Registration Link (Google Form / Portal URL) *:
+                </label>
+                <input
+                  type="url"
+                  required
+                  placeholder="https://forms.gle/drive-register-2025"
+                  value={newJob.registrationLink}
+                  onChange={(e) => setNewJob({ ...newJob, registrationLink: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl border border-[#E2E8F0] font-mono text-xs"
+                />
+                <span className="text-[10px] text-[#64748B] mt-0.5 block">
+                  Students will be given this link to complete their official drive registration.
+                </span>
               </div>
 
               <div className="flex items-center gap-2 pt-2">
