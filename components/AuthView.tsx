@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Image from "next/image";
 import { usePlyace } from "@/lib/store";
 import { UserProfile } from "@/lib/types";
-import { getStatus } from "@/lib/status";
+import { getStatus, getDaysRemaining, isExpiringSoon } from "@/lib/status";
 import {
   UserPlus,
   LogIn,
@@ -15,6 +15,10 @@ import {
   AlertCircle,
   ArrowRight,
   ArrowLeft,
+  Clock,
+  Lock,
+  HelpCircle,
+  Calendar,
 } from "lucide-react";
 import confetti from "canvas-confetti";
 
@@ -44,8 +48,26 @@ export function AuthView({ initialMode = "register", onSuccess, onBackToLanding 
   const [loginPassword, setLoginPassword] = useState("");
   const [loginError, setLoginError] = useState<string | null>(null);
 
+  // Simulated today date
+  const simDateObj = new Date(simulatedDate);
+
   // Compute live preview status based on graduation date
-  const computedStatus = getStatus(regGradDate, new Date(simulatedDate));
+  const computedStatus = getStatus(regGradDate, simDateObj);
+  const daysLeft = getDaysRemaining(regGradDate, simDateObj);
+
+  // Quick preset helper
+  const applyPreset = (preset: "current" | "passout" | "expired") => {
+    if (preset === "current") {
+      setRegGradDate("2027-06-30");
+      setRegBatch("2023-2027");
+    } else if (preset === "passout") {
+      setRegGradDate("2025-06-30");
+      setRegBatch("2021-2025");
+    } else {
+      setRegGradDate("2024-05-15");
+      setRegBatch("2020-2024");
+    }
+  };
 
   const handleRegisterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -202,18 +224,70 @@ export function AuthView({ initialMode = "register", onSuccess, onBackToLanding 
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div>
-                  <label className="block font-bold text-[#0F172A] mb-1">Graduation Date</label>
-                  <input
-                    type="date"
-                    required
-                    value={regGradDate}
-                    onChange={(e) => setRegGradDate(e.target.value)}
-                    className="w-full px-2.5 py-2 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC]"
-                  />
+              {/* Graduation Date & Presets */}
+              <div className="space-y-1.5 bg-[#F8FAFC] p-3.5 rounded-2xl border border-[#E2E8F0]">
+                <div className="flex items-center justify-between">
+                  <label className="font-bold text-[#0F172A] flex items-center gap-1.5">
+                    <Calendar className="w-3.5 h-3.5 text-[#2563EB]" />
+                    <span>Graduation Date</span>
+                  </label>
+                  <span className="text-[10px] text-[#64748B]">
+                    Controls your placement lifecycle
+                  </span>
                 </div>
 
+                <input
+                  type="date"
+                  required
+                  value={regGradDate}
+                  onChange={(e) => setRegGradDate(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-[#E2E8F0] bg-white text-xs font-semibold text-[#0F172A]"
+                />
+
+                {/* Quick Presets to test lifecycle calculation instantly */}
+                <div className="pt-1.5">
+                  <span className="text-[10px] text-[#64748B] block mb-1 font-semibold">
+                    Quick Presets (Click to test lifecycle):
+                  </span>
+                  <div className="grid grid-cols-3 gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => applyPreset("current")}
+                      className={`px-2 py-1 rounded-lg text-[10px] font-bold transition-all border ${
+                        computedStatus === "current"
+                          ? "bg-[#2563EB] text-white border-[#2563EB]"
+                          : "bg-white hover:bg-slate-100 text-[#0F172A] border-[#E2E8F0]"
+                      }`}
+                    >
+                      🎓 Final Year (2027)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => applyPreset("passout")}
+                      className={`px-2 py-1 rounded-lg text-[10px] font-bold transition-all border ${
+                        computedStatus === "passout"
+                          ? "bg-[#10B981] text-white border-[#10B981]"
+                          : "bg-white hover:bg-slate-100 text-[#0F172A] border-[#E2E8F0]"
+                      }`}
+                    >
+                      💼 Passout (2025)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => applyPreset("expired")}
+                      className={`px-2 py-1 rounded-lg text-[10px] font-bold transition-all border ${
+                        computedStatus === "expired"
+                          ? "bg-[#EF4444] text-white border-[#EF4444]"
+                          : "bg-white hover:bg-slate-100 text-[#0F172A] border-[#E2E8F0]"
+                      }`}
+                    >
+                      🔒 Expired (2024)
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block font-bold text-[#0F172A] mb-1">Current CGPA</label>
                   <input
@@ -229,7 +303,7 @@ export function AuthView({ initialMode = "register", onSuccess, onBackToLanding 
                 </div>
 
                 <div>
-                  <label className="block font-bold text-[#0F172A] mb-1">Backlogs</label>
+                  <label className="block font-bold text-[#0F172A] mb-1">Active Backlogs</label>
                   <input
                     type="number"
                     min="0"
@@ -252,12 +326,72 @@ export function AuthView({ initialMode = "register", onSuccess, onBackToLanding 
                 />
               </div>
 
-              {/* Status Preview Chip */}
-              <div className="p-3 rounded-2xl bg-[#2563EB]/5 border border-[#2563EB]/20 flex items-center justify-between">
-                <span className="text-[#64748B]">Calculated Lifecycle Status:</span>
-                <span className="font-bold capitalize text-[#2563EB]">
-                  {computedStatus === "current" ? "Enrolled Student" : computedStatus === "passout" ? "Passout (<18m Support)" : "Expired Passout"}
-                </span>
+              {/* Dynamic Calculated Lifecycle Status Card */}
+              <div
+                className={`p-4 rounded-2xl border transition-all ${
+                  computedStatus === "current"
+                    ? "bg-[#2563EB]/5 border-[#2563EB]/25"
+                    : computedStatus === "passout"
+                    ? "bg-[#10B981]/5 border-[#10B981]/25"
+                    : "bg-[#EF4444]/5 border-[#EF4444]/25"
+                }`}
+              >
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#64748B]">
+                    Calculated Lifecycle Status
+                  </span>
+                  <span
+                    className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
+                      computedStatus === "current"
+                        ? "bg-[#2563EB]/15 text-[#2563EB]"
+                        : computedStatus === "passout"
+                        ? "bg-[#10B981]/15 text-[#059669]"
+                        : "bg-[#EF4444]/15 text-[#DC2626]"
+                    }`}
+                  >
+                    {computedStatus === "current" ? (
+                      <>
+                        <GraduationCap className="w-3.5 h-3.5" />
+                        <span>Enrolled Student</span>
+                      </>
+                    ) : computedStatus === "passout" ? (
+                      <>
+                        <Clock className="w-3.5 h-3.5" />
+                        <span>Passout Alumni ({daysLeft}d left)</span>
+                      </>
+                    ) : (
+                      <>
+                        <Lock className="w-3.5 h-3.5" />
+                        <span>Access Expired (&gt;18m)</span>
+                      </>
+                    )}
+                  </span>
+                </div>
+
+                <p className="text-[11px] text-[#0F172A] leading-snug">
+                  {computedStatus === "current" && (
+                    <span>
+                      &bull; Graduation date ({regGradDate}) is in the future. You will have full access to <strong>on-campus placement drives, internships, and PPOs</strong>.
+                    </span>
+                  )}
+                  {computedStatus === "passout" && (
+                    <span>
+                      &bull; Graduated within the college 18-month window. You have access to <strong>off-campus hiring drives, alumni referrals, and mock rounds</strong> ({daysLeft} days remaining).
+                    </span>
+                  )}
+                  {computedStatus === "expired" && (
+                    <span className="text-[#DC2626]">
+                      &bull; Graduated over 18 months ago. In-app placement access is concluded under standard college policy unless an admin extends your access.
+                    </span>
+                  )}
+                </p>
+
+                <div className="mt-2 pt-2 border-t border-slate-200/60 flex items-center gap-1.5 text-[10px] text-[#64748B]">
+                  <HelpCircle className="w-3 h-3 text-slate-400 shrink-0" />
+                  <span>
+                    Status is computed automatically from graduation date relative to the system date ({simulatedDate}). Students cannot manually tamper with their status.
+                  </span>
+                </div>
               </div>
 
               <button
