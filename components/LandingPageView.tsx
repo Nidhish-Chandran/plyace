@@ -110,7 +110,7 @@ export function LandingPageView({ onEnterApp, onOpenRegister, onOpenLogin }: Lan
           {/* Quick Demo Selector for Judges/Reviewers */}
           <div className="bg-white p-4 rounded-2xl border border-[#E2E8F0] shadow-card max-w-xl mx-auto">
             <div className="text-[11px] font-bold uppercase tracking-wider text-[#64748B] mb-2.5">
-              1-Click Instant Demo Access:
+              Quick Sign-In by Profile:
             </div>
             <div className="grid grid-cols-3 gap-2 text-left">
               <button
@@ -191,7 +191,7 @@ export function LandingPageView({ onEnterApp, onOpenRegister, onOpenLogin }: Lan
             <span>&bull;</span>
             <span>Career Guidance & Placement Unit (CGPU)</span>
             <span>&bull;</span>
-            <span>Team H03</span>
+            <span>College Placement Cell</span>
           </div>
 
           <div className="flex items-center gap-4">

@@ -35,14 +35,14 @@ export function AdminSimulateModal({ isOpen, onClose }: AdminSimulateModalProps)
             <Clock className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-[#0F172A]">Simulate System Date</h3>
-            <p className="text-xs text-[#64748B]">Fast-forward time to demo the student lifecycle</p>
+            <h3 className="text-lg font-bold text-[#0F172A]">Placement Cycle Date Controls</h3>
+            <p className="text-xs text-[#64748B]">Adjust calendar date to evaluate student lifecycle rules</p>
           </div>
         </div>
 
         <div className="bg-[#F8FAFC] p-3.5 rounded-xl border border-[#E2E8F0] mb-5">
           <div className="flex items-center justify-between text-xs mb-1">
-            <span className="text-[#64748B]">Active Persona:</span>
+            <span className="text-[#64748B]">Active Account:</span>
             <span className="font-semibold text-[#0F172A]">{currentUser.name} ({currentUser.batch})</span>
           </div>
           <div className="flex items-center justify-between text-xs mb-1">
@@ -55,10 +55,10 @@ export function AdminSimulateModal({ isOpen, onClose }: AdminSimulateModalProps)
           </div>
         </div>
 
-        {/* Quick presets for demo script */}
+        {/* Quick presets for academic calendar */}
         <div className="space-y-2 mb-5">
           <label className="text-xs font-semibold text-[#0F172A] uppercase tracking-wider">
-            Demo Script Presets
+            Academic Calendar Presets
           </label>
           <div className="grid grid-cols-1 gap-2">
             <button
@@ -70,8 +70,8 @@ export function AdminSimulateModal({ isOpen, onClose }: AdminSimulateModalProps)
               }`}
             >
               <div>
-                <div className="font-medium">1. Baseline Demo Day (Oct 1, 2026)</div>
-                <div className="text-[11px] text-[#64748B]">Aditi is a final year student; Rahul is a passout</div>
+                <div className="font-medium">1. Current Academic Semester (Oct 1, 2026)</div>
+                <div className="text-[11px] text-[#64748B]">Active ongoing campus recruitment season</div>
               </div>
               <FastForward className="w-4 h-4 text-slate-400" />
             </button>

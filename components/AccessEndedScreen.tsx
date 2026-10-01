@@ -70,7 +70,7 @@ export function AccessEndedScreen({ onOpenSimulate }: { onOpenSimulate?: () => v
         </div>
 
         <div className="pt-6 border-t border-[#E2E8F0]">
-          <p className="text-xs text-[#64748B] mb-3">Hackathon Demo Switchers:</p>
+          <p className="text-xs text-[#64748B] mb-3">Switch Account View:</p>
           <div className="flex flex-wrap gap-2 justify-center">
             <button
               onClick={() => switchUserById("usr_student_1")}

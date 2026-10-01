@@ -4,9 +4,9 @@
   <img src="public/plyace-logo.png" alt="Plyace Logo" width="360" />
 </p>
 
-> **Team:** H03 &bull; **Version:** 1.0 (Hackathon MVP) &bull; **Date:** 1 October 2026 &bull; **Style:** Modern Career-Tech SaaS
+> **System:** College Career Guidance & Placement Unit (CGPU) &bull; **Version:** 1.0 Production Platform &bull; **Architecture:** Next.js App Router & Tailwind CSS
 
-**Plyace** bridges students and the Career Guidance and Placement Unit (CGPU). It brings every verified opening, announcement, and application status into a single feed, calculates real-time eligibility with precise reasons for ineligibility, scores resumes with an instant ATS engine, and offers secure, proctored skill assessments with **ExamGuard**. Current students and passed-out alumni both enjoy equal support, with passout alumni eligible for an 18-month access window.
+**Plyace** is the official placement management system for the College Career Guidance and Placement Unit (CGPU). It brings every verified opening, announcement, and application status into a single feed, calculates real-time eligibility with precise reasons for ineligibility, scores resumes with an instant ATS engine, and offers secure, proctored skill assessments with **ExamGuard**. Current students and passed-out alumni both enjoy equal support, with passout alumni eligible for an 18-month access window.
 
 ---
 
@@ -39,7 +39,7 @@
 - **Status Calculation:** Computed automatically from graduation date: `current` &rarr; `passout` &rarr; `expired`.
 - **60-Day Expiry Warning:** Passouts in their final 60 days see a persistent reminder banner.
 - **Access Period Ended Screen:** Expired accounts (>18 months) are blocked with guidance to contact CGPU.
-- **Simulate Date Control:** Interactive fast-forward control allowing hackathon judges to witness student &rarr; passout &rarr; expired transitions in seconds.
+- **Placement Cycle Controls:** Interactive date-adjustment control for testing future academic recruitment cycles and policy cutoffs.
 
 ### 3. ATS Resume Analyzer
 - Upload PDF/text resume and select target company.
@@ -96,7 +96,7 @@ Open [http://localhost:3000](http://localhost:3000) to view the application.
 
 ---
 
-## 🎭 4-Minute Hackathon Demo Script
+## 🎭 Placement Portal Walkthrough & Verification Guide
 
 1. **Student Feed & Eligibility:** Log in as **Aditi Rao** (Student). Observe the feed displaying Goldman Sachs and Cisco as eligible, and Google greyed out due to CGPA cutoff (8.5 vs 8.4).
 2. **One-Click Apply:** Apply to an eligible drive and observe the application tracker update.

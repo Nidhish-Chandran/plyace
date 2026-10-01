@@ -102,7 +102,7 @@ export function AuthView({ initialMode = "register", onSuccess, onBackToLanding 
       setCurrentUser(found);
       onSuccess();
     } else {
-      setLoginError("Account not found. Please select a quick demo account below or register.");
+      setLoginError("Account not found. Please sign in with an active account below or complete registration.");
     }
   };
 
@@ -453,7 +453,7 @@ export function AuthView({ initialMode = "register", onSuccess, onBackToLanding 
           {/* Quick 1-Click Demo Accounts Bar (PRD Section 6.1: FR-3) */}
           <div className="mt-6 pt-6 border-t border-[#E2E8F0]">
             <div className="text-[11px] font-bold uppercase tracking-wider text-[#64748B] mb-2.5 text-center">
-              Or 1-Click Demo Logins:
+              Quick Sign-In by Profile:
             </div>
             <div className="grid grid-cols-2 gap-2 text-left">
               <button
