@@ -165,9 +165,9 @@ export function AuthView({ initialMode = "register", onSuccess, onBackToLanding 
           {mode === "register" ? (
             <form onSubmit={handleRegisterSubmit} className="space-y-4 text-xs">
               <div className="text-center pb-2">
-                <h3 className="text-base font-bold text-[#0F172A]">Student Season Registration</h3>
+                <h3 className="text-base font-bold text-[#0F172A]">Student Placement Registration</h3>
                 <p className="text-[11px] text-[#64748B]">
-                  Enrolls your profile with real-time CGPU placement eligibility
+                  Official registration with real-time CGPU placement eligibility matching
                 </p>
               </div>
 
@@ -244,46 +244,15 @@ export function AuthView({ initialMode = "register", onSuccess, onBackToLanding 
                   className="w-full px-3 py-2 rounded-xl border border-[#E2E8F0] bg-white text-xs font-semibold text-[#0F172A]"
                 />
 
-                {/* Quick Presets to test lifecycle calculation instantly */}
-                <div className="pt-1.5">
-                  <span className="text-[10px] text-[#64748B] block mb-1 font-semibold">
-                    Quick Presets (Click to test lifecycle):
+                <div className="p-2.5 rounded-xl bg-white border border-[#E2E8F0] flex items-center justify-between text-[11px]">
+                  <span className="text-[#64748B]">Eligibility Window:</span>
+                  <span className="font-bold text-[#2563EB]">
+                    {computedStatus === "current"
+                      ? "Active Enrolled Student"
+                      : computedStatus === "passout"
+                      ? `Passout Alumni (${daysLeft}d left)`
+                      : "Expired"}
                   </span>
-                  <div className="grid grid-cols-3 gap-1.5">
-                    <button
-                      type="button"
-                      onClick={() => applyPreset("current")}
-                      className={`px-2 py-1 rounded-lg text-[10px] font-bold transition-all border ${
-                        computedStatus === "current"
-                          ? "bg-[#2563EB] text-white border-[#2563EB]"
-                          : "bg-white hover:bg-slate-100 text-[#0F172A] border-[#E2E8F0]"
-                      }`}
-                    >
-                      🎓 Final Year (2027)
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => applyPreset("passout")}
-                      className={`px-2 py-1 rounded-lg text-[10px] font-bold transition-all border ${
-                        computedStatus === "passout"
-                          ? "bg-[#10B981] text-white border-[#10B981]"
-                          : "bg-white hover:bg-slate-100 text-[#0F172A] border-[#E2E8F0]"
-                      }`}
-                    >
-                      💼 Passout (2025)
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => applyPreset("expired")}
-                      className={`px-2 py-1 rounded-lg text-[10px] font-bold transition-all border ${
-                        computedStatus === "expired"
-                          ? "bg-[#EF4444] text-white border-[#EF4444]"
-                          : "bg-white hover:bg-slate-100 text-[#0F172A] border-[#E2E8F0]"
-                      }`}
-                    >
-                      🔒 Expired (2024)
-                    </button>
-                  </div>
                 </div>
               </div>
 

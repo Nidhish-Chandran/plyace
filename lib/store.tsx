@@ -39,18 +39,36 @@ interface PlyaceContextType {
   currentStatus: Status;
   isPassoutExpiringSoon: { warning: boolean; daysLeft: number };
   
+  // Auth & Session
+  isLoggedIn: boolean;
+  authChecked: boolean;
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  register: (userData: {
+    name: string;
+    rollNumber?: string;
+    email: string;
+    password?: string;
+    branch: string;
+    batch: string;
+    graduationDate: string;
+    cgpa: number;
+    backlogs: number;
+    skills: string[];
+  }) => Promise<{ success: boolean; error?: string }>;
+  logout: () => Promise<void>;
+
   // Jobs
   jobs: Job[];
-  addJob: (job: Omit<Job, "id" | "postedDate">) => void;
+  addJob: (job: Omit<Job, "id" | "postedDate">) => Promise<void>;
   
   // Applications
   applications: Application[];
-  applyToJob: (jobId: string, notes?: string) => { success: boolean; message: string };
+  applyToJob: (jobId: string, notes?: string) => Promise<{ success: boolean; message: string }>;
   updateApplicationStatus: (appId: string, status: ApplicationStatus) => void;
   
   // Announcements
   announcements: Announcement[];
-  addAnnouncement: (title: string, body: string, tag: Announcement["tag"]) => void;
+  addAnnouncement: (title: string, body: string, tag: Announcement["tag"]) => Promise<void>;
   
   // Resume Analyses
   resumeAnalyses: ResumeAnalysis[];
@@ -98,6 +116,9 @@ const PlyaceContext = createContext<PlyaceContextType | undefined>(undefined);
 
 export function PlyaceProvider({ children }: { children: React.ReactNode }) {
   const [isClient, setIsClient] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
+
   const [allUsers, setAllUsers] = useState<UserProfile[]>(DEMO_USERS);
   const [currentUser, setCurrentUserState] = useState<UserProfile>(DEMO_USERS[0]);
   const [simulatedDate, setSimulatedDateState] = useState<string>("2026-10-01");
@@ -113,37 +134,71 @@ export function PlyaceProvider({ children }: { children: React.ReactNode }) {
   const [mockSlots, setMockSlots] = useState<MockSlot[]>(INITIAL_MOCK_SLOTS);
   const [mockBookings, setMockBookings] = useState<MockBooking[]>([]);
 
-  // Load from localStorage on mount
+  // Load from localStorage and SQLite backend on mount
   useEffect(() => {
     setIsClient(true);
-    try {
-      const savedUser = localStorage.getItem("plyace_user_id");
-      const savedSimDate = localStorage.getItem("plyace_simulated_date");
-      const savedApps = localStorage.getItem("plyace_apps");
-      const savedJobs = localStorage.getItem("plyace_jobs");
-      const savedUsers = localStorage.getItem("plyace_users");
-      const savedLogs = localStorage.getItem("plyace_violation_logs");
 
-      if (savedSimDate) setSimulatedDateState(savedSimDate);
-      if (savedJobs) setJobs(JSON.parse(savedJobs));
-      if (savedApps) setApplications(JSON.parse(savedApps));
-      if (savedUsers) setAllUsers(JSON.parse(savedUsers));
-      if (savedLogs) setViolationLogs(JSON.parse(savedLogs));
-
-      if (savedUser && savedUsers) {
-        const parsedUsers: UserProfile[] = JSON.parse(savedUsers);
-        const match = parsedUsers.find((u) => u.id === savedUser);
-        if (match) setCurrentUserState(match);
-      } else if (savedUser) {
-        const match = DEMO_USERS.find((u) => u.id === savedUser);
-        if (match) setCurrentUserState(match);
+    async function initSessionAndData() {
+      try {
+        // 1. Check server-side session cookie via /api/auth/session
+        const sessRes = await fetch("/api/auth/session");
+        if (sessRes.ok) {
+          const sessData = await sessRes.json();
+          if (sessData.authenticated && sessData.user) {
+            setCurrentUserState(sessData.user);
+            setIsLoggedIn(true);
+          }
+        }
+      } catch (err) {
+        console.error("Session verification fetch failed:", err);
+      } finally {
+        setAuthChecked(true);
       }
-    } catch {
-      // ignore parsing error
+
+      // 2. Fetch jobs from SQLite database
+      try {
+        const jobsRes = await fetch("/api/jobs");
+        if (jobsRes.ok) {
+          const jobsData = await jobsRes.json();
+          if (jobsData.success && jobsData.jobs && jobsData.jobs.length > 0) {
+            setJobs(jobsData.jobs);
+          }
+        }
+      } catch (err) {
+        // Fallback to local
+      }
+
+      // 3. Fetch announcements from SQLite database
+      try {
+        const ancRes = await fetch("/api/announcements");
+        if (ancRes.ok) {
+          const ancData = await ancRes.json();
+          if (ancData.success && ancData.announcements && ancData.announcements.length > 0) {
+            setAnnouncements(ancData.announcements);
+          }
+        }
+      } catch (err) {
+        // Fallback to local
+      }
+
+      // 4. Fallbacks from localStorage if any
+      try {
+        const savedSimDate = localStorage.getItem("plyace_simulated_date");
+        const savedApps = localStorage.getItem("plyace_apps");
+        const savedLogs = localStorage.getItem("plyace_violation_logs");
+
+        if (savedSimDate) setSimulatedDateState(savedSimDate);
+        if (savedApps) setApplications(JSON.parse(savedApps));
+        if (savedLogs) setViolationLogs(JSON.parse(savedLogs));
+      } catch {
+        // ignore
+      }
     }
+
+    initSessionAndData();
   }, []);
 
-  // Save changes to localStorage
+  // Save changes to localStorage for quick restore
   useEffect(() => {
     if (!isClient) return;
     try {
@@ -157,6 +212,70 @@ export function PlyaceProvider({ children }: { children: React.ReactNode }) {
       // ignore
     }
   }, [currentUser, simulatedDate, applications, jobs, allUsers, violationLogs, isClient]);
+
+  const login = async (email: string, password: string) => {
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success && data.user) {
+        setCurrentUserState(data.user);
+        setIsLoggedIn(true);
+        // Also ensure user is in allUsers
+        setAllUsers((prev) => {
+          const exists = prev.some((u) => u.id === data.user.id);
+          return exists ? prev.map((u) => (u.id === data.user.id ? data.user : u)) : [data.user, ...prev];
+        });
+        return { success: true };
+      }
+      return { success: false, error: data.error || "Login failed" };
+    } catch (err: any) {
+      return { success: false, error: "Network error during login" };
+    }
+  };
+
+  const register = async (userData: {
+    name: string;
+    rollNumber?: string;
+    email: string;
+    password?: string;
+    branch: string;
+    batch: string;
+    graduationDate: string;
+    cgpa: number;
+    backlogs: number;
+    skills: string[];
+  }) => {
+    try {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(userData),
+      });
+      const data = await res.json();
+      if (res.ok && data.success && data.user) {
+        setCurrentUserState(data.user);
+        setIsLoggedIn(true);
+        setAllUsers((prev) => [data.user, ...prev]);
+        return { success: true };
+      }
+      return { success: false, error: data.error || "Registration failed" };
+    } catch (err: any) {
+      return { success: false, error: "Network error during registration" };
+    }
+  };
+
+  const logout = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch {
+      // ignore
+    }
+    setIsLoggedIn(false);
+  };
 
   const setSimulatedDate = (date: string) => {
     setSimulatedDateState(date);
@@ -188,16 +307,27 @@ export function PlyaceProvider({ children }: { children: React.ReactNode }) {
     currentUser.accessOverrideUntil
   );
 
-  const addJob = (newJobData: Omit<Job, "id" | "postedDate">) => {
+  const addJob = async (newJobData: Omit<Job, "id" | "postedDate">) => {
     const newJob: Job = {
       ...newJobData,
       id: `job_${Date.now()}`,
       postedDate: simulatedDate,
     };
     setJobs((prev) => [newJob, ...prev]);
+
+    // Persist to backend database
+    try {
+      await fetch("/api/jobs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newJobData),
+      });
+    } catch (err) {
+      console.error("Failed to persist job to backend:", err);
+    }
   };
 
-  const applyToJob = (jobId: string, notes?: string) => {
+  const applyToJob = async (jobId: string, notes?: string) => {
     const existing = applications.find(
       (a) => a.jobId === jobId && a.studentId === currentUser.id
     );
@@ -224,12 +354,28 @@ export function PlyaceProvider({ children }: { children: React.ReactNode }) {
       appliedAt: new Date(simulatedDate).toISOString(),
       company: job.company,
       jobTitle: job.title,
-      notes: notes || "Submitted through Plyace one-click apply.",
+      notes: notes || "Submitted through Plyace placement portal.",
     };
 
     setApplications((prev) => [newApp, ...prev]);
 
-    // Award +5 gamification points as per PRD
+    // Persist application to backend SQLite database
+    try {
+      await fetch("/api/applications", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jobId,
+          company: job.company,
+          jobTitle: job.title,
+          matchScore: match.matchPercentage,
+        }),
+      });
+    } catch (err) {
+      console.error("Failed to save application to SQLite:", err);
+    }
+
+    // Award +5 gamification points
     const updatedUser = { ...currentUser, points: currentUser.points + 5 };
     setCurrentUser(updatedUser);
 
@@ -242,61 +388,86 @@ export function PlyaceProvider({ children }: { children: React.ReactNode }) {
     );
   };
 
-  const addAnnouncement = (title: string, body: string, tag: Announcement["tag"]) => {
+  const addAnnouncement = async (title: string, body: string, tag: Announcement["tag"]) => {
     const newAnc: Announcement = {
       id: `anc_${Date.now()}`,
       title,
       body,
       createdAt: new Date(simulatedDate).toISOString(),
       tag,
-      author: currentUser.name || "CGPU Admin",
+      author: currentUser.name || "CGPU Placement Cell",
     };
     setAnnouncements((prev) => [newAnc, ...prev]);
+
+    // Persist announcement to backend
+    try {
+      await fetch("/api/announcements", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, body, tag }),
+      });
+    } catch (err) {
+      console.error("Failed to save announcement to SQLite:", err);
+    }
   };
 
   const analyzeResume = async (
     resumeText: string,
     targetJobId?: string
   ): Promise<ResumeAnalysis> => {
-    const targetJob = targetJobId ? jobs.find((j) => j.id === targetJobId) : undefined;
-    const requiredSkills = targetJob
+    const targetJob = jobs.find((j) => j.id === targetJobId);
+    const keywordsToFind = targetJob
       ? targetJob.requiredSkills
-      : ["Data Structures", "Algorithms", "React", "TypeScript", "Python", "SQL", "Git", "System Design"];
+      : [
+          "Python",
+          "React",
+          "SQL",
+          "TypeScript",
+          "Data Structures",
+          "Algorithms",
+          "Docker",
+          "Git",
+          "REST APIs",
+          "Machine Learning",
+          "Node.js",
+          "AWS",
+        ];
 
-    const textLower = resumeText.toLowerCase();
+    const lowerResume = resumeText.toLowerCase();
     const matched: string[] = [];
     const missing: string[] = [];
 
-    requiredSkills.forEach((skill) => {
-      if (textLower.includes(skill.toLowerCase())) {
-        matched.push(skill);
+    keywordsToFind.forEach((kw) => {
+      if (lowerResume.includes(kw.toLowerCase())) {
+        matched.push(kw);
       } else {
-        missing.push(skill);
+        missing.push(kw);
       }
     });
 
-    // Score calculation base
-    const baseScore = Math.min(
-      95,
-      Math.max(
-        45,
-        Math.round((matched.length / Math.max(1, requiredSkills.length)) * 70 + (resumeText.length > 200 ? 25 : 10))
-      )
-    );
+    const matchRatio = keywordsToFind.length > 0 ? matched.length / keywordsToFind.length : 0.6;
+    let baseScore = Math.round(matchRatio * 75);
 
-    const strengths: string[] = [
-      "Clean section hierarchy (Education, Skills, Experience, Projects).",
-      "Impactful action verbs used across project bullet points.",
-    ];
-    if (matched.length > 2) {
-      strengths.push(`Direct alignment on core tech keywords: ${matched.slice(0, 3).join(", ")}.`);
-    }
+    if (resumeText.length > 300) baseScore += 10;
+    if (/gpa|cgpa|percentage/i.test(resumeText)) baseScore += 5;
+    if (/project|experience|internship/i.test(resumeText)) baseScore += 10;
 
+    baseScore = Math.min(96, Math.max(35, baseScore));
+
+    const strengths: string[] = [];
     const suggestions: string[] = [];
-    if (missing.length > 0) {
-      suggestions.push(`Include concrete evidence or coursework for missing target skills: ${missing.join(", ")}.`);
+
+    if (matched.length > 0) {
+      strengths.push(`Found key technical competencies: ${matched.slice(0, 4).join(", ")}`);
     }
-    suggestions.push("Quantify project outcomes with business or latency metrics (e.g. 'reduced latency by 35%').");
+    if (resumeText.length > 400) {
+      strengths.push("Good descriptive depth for academic and extracurricular projects.");
+    }
+
+    if (missing.length > 0) {
+      suggestions.push(`Incorporate high-frequency target skills: ${missing.slice(0, 3).join(", ")}.`);
+    }
+    suggestions.push("Quantify impact with metrics (e.g., 'Optimized response latency by 35%').");
     suggestions.push("Ensure your LinkedIn and GitHub repository URLs are hyperlinked in the header.");
 
     const analysis: ResumeAnalysis = {
@@ -315,7 +486,7 @@ export function PlyaceProvider({ children }: { children: React.ReactNode }) {
 
     setResumeAnalyses((prev) => [analysis, ...prev]);
 
-    // Award +10 gamification points as per PRD
+    // Award +10 gamification points
     const updatedUser = { ...currentUser, points: currentUser.points + 10 };
     setCurrentUser(updatedUser);
 
@@ -478,6 +649,7 @@ export function PlyaceProvider({ children }: { children: React.ReactNode }) {
   const resetToDefaults = () => {
     setAllUsers(DEMO_USERS);
     setCurrentUserState(DEMO_USERS[0]);
+    setIsLoggedIn(false);
     setSimulatedDateState("2026-10-01");
     setJobs(INITIAL_JOBS);
     setApplications(INITIAL_APPLICATIONS);
@@ -506,6 +678,11 @@ export function PlyaceProvider({ children }: { children: React.ReactNode }) {
         setSimulatedDate,
         currentStatus,
         isPassoutExpiringSoon,
+        isLoggedIn,
+        authChecked,
+        login,
+        register,
+        logout,
         jobs,
         addJob,
         applications,

@@ -4,6 +4,7 @@ export type Status = "current" | "passout" | "expired";
 export interface UserProfile {
   id: string;
   name: string;
+  rollNumber?: string;
   email: string;
   role: Role;
   branch: string;

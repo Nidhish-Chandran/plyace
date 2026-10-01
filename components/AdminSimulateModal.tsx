@@ -5,11 +5,11 @@ import { usePlyace } from "@/lib/store";
 import { Calendar, FastForward, Clock, X, Check, AlertCircle } from "lucide-react";
 
 interface AdminSimulateModalProps {
-  isOpen: boolean;
+  isOpen?: boolean;
   onClose: () => void;
 }
 
-export function AdminSimulateModal({ isOpen, onClose }: AdminSimulateModalProps) {
+export function AdminSimulateModal({ isOpen = true, onClose }: AdminSimulateModalProps) {
   const { simulatedDate, setSimulatedDate, currentUser, currentStatus } = usePlyace();
   const [selectedDate, setSelectedDate] = useState(simulatedDate);
 

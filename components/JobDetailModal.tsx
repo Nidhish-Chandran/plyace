@@ -24,22 +24,26 @@ import confetti from "canvas-confetti";
 interface JobDetailModalProps {
   job: Job | null;
   onClose: () => void;
-  isApplied: boolean;
+  isApplied?: boolean;
 }
 
-export function JobDetailModal({ job, onClose, isApplied }: JobDetailModalProps) {
-  const { currentUser, simulatedDate, applyToJob } = usePlyace();
+export function JobDetailModal({ job, onClose, isApplied: externalIsApplied }: JobDetailModalProps) {
+  const { currentUser, simulatedDate, applyToJob, applications } = usePlyace();
   const [notes, setNotes] = useState("");
   const [submittedMessage, setSubmittedMessage] = useState<string | null>(null);
 
   if (!job) return null;
 
+  const isApplied = externalIsApplied !== undefined
+    ? externalIsApplied
+    : applications.some((a) => a.jobId === job.id && a.studentId === currentUser.id);
+
   const eligibility = checkEligibility(job, currentUser, new Date(simulatedDate));
   const isEligible = eligibility.eligible;
   const match = calculateSkillMatch(currentUser.skills, job.requiredSkills);
 
-  const handleApply = () => {
-    const res = applyToJob(job.id, notes);
+  const handleApply = async () => {
+    const res = await applyToJob(job.id, notes);
     if (res.success) {
       confetti({
         particleCount: 70,
