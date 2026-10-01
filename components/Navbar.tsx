@@ -85,9 +85,9 @@ export function Navbar({ onOpenSimulate }: NavbarProps) {
   };
 
   const handleSignOut = async () => {
-    await logout();
     setDropdownOpen(false);
-    router.push("/login");
+    await logout();
+    window.location.replace("/login");
   };
 
   return (

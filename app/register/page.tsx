@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -22,27 +22,34 @@ import confetti from "canvas-confetti";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { register, simulatedDate } = usePlyace();
+  const { register, simulatedDate, isLoggedIn, authChecked, currentUser } = usePlyace();
 
   const [name, setName] = useState("");
   const [rollNumber, setRollNumber] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [branch, setBranch] = useState("Computer Science & Engineering");
-  const [batch, setBatch] = useState("2023-2027");
-  const [graduationDate, setGraduationDate] = useState("2027-06-30");
-  const [cgpa, setCgpa] = useState("8.2");
-  const [backlogs, setBacklogs] = useState("0");
-  const [skills, setSkills] = useState("React, Python, SQL, Data Structures");
+  const [branch, setBranch] = useState("");
+  const [batch, setBatch] = useState("");
+  const [graduationDate, setGraduationDate] = useState("");
+  const [cgpa, setCgpa] = useState("");
+  const [backlogs, setBacklogs] = useState("");
+  const [skills, setSkills] = useState("");
 
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  // If already logged in, redirect to dashboard
+  useEffect(() => {
+    if (authChecked && isLoggedIn && currentUser.id) {
+      router.replace("/dashboard");
+    }
+  }, [authChecked, isLoggedIn, currentUser, router]);
+
   // Compute live placement eligibility lifecycle
   const simDateObj = new Date(simulatedDate);
-  const computedStatus = getStatus(graduationDate, simDateObj);
-  const daysLeft = getDaysRemaining(graduationDate, simDateObj);
+  const computedStatus = graduationDate ? getStatus(graduationDate, simDateObj) : null;
+  const daysLeft = graduationDate ? getDaysRemaining(graduationDate, simDateObj) : 0;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,9 +65,34 @@ export default function RegisterPage() {
       return;
     }
 
+    if (!branch) {
+      setError("Please select your branch / department.");
+      return;
+    }
+
+    if (!batch.trim()) {
+      setError("Please specify your enrolled batch (e.g. 2023-2027).");
+      return;
+    }
+
+    if (!graduationDate) {
+      setError("Please select your degree completion / graduation date.");
+      return;
+    }
+
+    if (!cgpa.trim()) {
+      setError("Please enter your cumulative CGPA.");
+      return;
+    }
+
     const cgpaNum = parseFloat(cgpa);
     if (isNaN(cgpaNum) || cgpaNum < 0 || cgpaNum > 10) {
       setError("Please enter a valid CGPA between 0.0 and 10.0.");
+      return;
+    }
+
+    if (backlogs.trim() === "") {
+      setError("Please enter active backlogs count (enter 0 if none).");
       return;
     }
 
@@ -73,7 +105,7 @@ export default function RegisterPage() {
         email: email.trim().toLowerCase(),
         password,
         branch,
-        batch,
+        batch: batch.trim(),
         graduationDate,
         cgpa: cgpaNum,
         backlogs: parseInt(backlogs) || 0,
@@ -82,7 +114,7 @@ export default function RegisterPage() {
 
       if (res.success) {
         confetti({ particleCount: 75, spread: 70, origin: { y: 0.6 } });
-        router.push("/dashboard");
+        router.replace("/dashboard");
       } else {
         setError(res.error || "Registration failed. Please check form values.");
       }
@@ -98,7 +130,7 @@ export default function RegisterPage() {
       {/* Institutional Header */}
       <header className="bg-white border-b border-[#E2E8F0] py-3.5 px-4 sm:px-8">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3">
+          <div className="flex items-center gap-3">
             <Image
               src="/plyace-logo.png"
               alt="Plyace"
@@ -111,7 +143,7 @@ export default function RegisterPage() {
             <span className="hidden sm:inline-block text-xs font-semibold text-[#1E3A8A]">
               Career Guidance & Placement Unit (CGPU)
             </span>
-          </Link>
+          </div>
 
           <div className="flex items-center gap-3">
             <span className="text-xs text-[#64748B] hidden sm:inline">Already registered?</span>
@@ -216,8 +248,10 @@ export default function RegisterPage() {
                   <select
                     value={branch}
                     onChange={(e) => setBranch(e.target.value)}
-                    className="w-full px-3 py-2.5 rounded-xl border border-[#E2E8F0] bg-white font-medium"
+                    required
+                    className="w-full px-3 py-2.5 rounded-xl border border-[#E2E8F0] bg-white font-medium text-[#0F172A]"
                   >
+                    <option value="" disabled>Select Branch / Department</option>
                     <option value="Computer Science & Engineering">Computer Science & Engineering</option>
                     <option value="Information Technology">Information Technology</option>
                     <option value="Electronics & Communication">Electronics & Communication</option>
@@ -234,7 +268,7 @@ export default function RegisterPage() {
                     required
                     value={batch}
                     onChange={(e) => setBatch(e.target.value)}
-                    placeholder="2023-2027"
+                    placeholder="e.g. 2023-2027"
                     className="w-full px-3.5 py-2.5 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] font-medium"
                   />
                 </div>
@@ -264,21 +298,27 @@ export default function RegisterPage() {
                 <div className="p-3 rounded-xl bg-white border border-[#E2E8F0] flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="text-[11px] text-[#64748B]">Calculated Status:</span>
-                    <span
-                      className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
-                        computedStatus === "current"
-                          ? "bg-[#2563EB]/10 text-[#2563EB]"
+                    {graduationDate ? (
+                      <span
+                        className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                          computedStatus === "current"
+                            ? "bg-[#2563EB]/10 text-[#2563EB]"
+                            : computedStatus === "passout"
+                            ? "bg-[#10B981]/10 text-[#059669]"
+                            : "bg-[#EF4444]/10 text-[#EF4444]"
+                        }`}
+                      >
+                        {computedStatus === "current"
+                          ? "Active Enrolled Student"
                           : computedStatus === "passout"
-                          ? "bg-[#10B981]/10 text-[#059669]"
-                          : "bg-[#EF4444]/10 text-[#EF4444]"
-                      }`}
-                    >
-                      {computedStatus === "current"
-                        ? "Active Enrolled Student"
-                        : computedStatus === "passout"
-                        ? `Passout Alumni (${daysLeft}d of 18m window remaining)`
-                        : "Lifecycle Expired (>18 months)"}
-                    </span>
+                          ? `Passout Alumni (${daysLeft}d of 18m window remaining)`
+                          : "Lifecycle Expired (>18 months)"}
+                      </span>
+                    ) : (
+                      <span className="text-[11px] text-[#64748B] italic">
+                        Select date above to evaluate placement lifecycle
+                      </span>
+                    )}
                   </div>
                   <span className="text-[10px] text-slate-400 hidden sm:inline">Automatic CGPU verification</span>
                 </div>
@@ -297,7 +337,7 @@ export default function RegisterPage() {
                     required
                     value={cgpa}
                     onChange={(e) => setCgpa(e.target.value)}
-                    placeholder="8.2"
+                    placeholder="e.g. 8.4"
                     className="w-full px-3.5 py-2.5 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] font-bold"
                   />
                   <span className="text-[10px] text-[#64748B] mt-1 block">
@@ -314,7 +354,7 @@ export default function RegisterPage() {
                     required
                     value={backlogs}
                     onChange={(e) => setBacklogs(e.target.value)}
-                    placeholder="0"
+                    placeholder="e.g. 0"
                     className="w-full px-3.5 py-2.5 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] font-bold"
                   />
                   <span className="text-[10px] text-[#64748B] mt-1 block">
@@ -405,9 +445,9 @@ export default function RegisterPage() {
         <div className="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
           <span suppressHydrationWarning>&copy; {new Date().getFullYear()} Career Guidance & Placement Unit (CGPU). All rights reserved.</span>
           <div className="flex gap-4">
-            <Link href="/" className="hover:text-[#2563EB]">Placement Policy</Link>
-            <Link href="/" className="hover:text-[#2563EB]">Student Code of Conduct</Link>
-            <Link href="/" className="hover:text-[#2563EB]">Contact Placement Cell</Link>
+            <Link href="#" className="hover:text-[#2563EB]">Placement Policy</Link>
+            <Link href="#" className="hover:text-[#2563EB]">Student Code of Conduct</Link>
+            <Link href="#" className="hover:text-[#2563EB]">Contact Placement Cell</Link>
           </div>
         </div>
       </footer>

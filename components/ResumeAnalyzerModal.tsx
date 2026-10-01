@@ -19,13 +19,9 @@ import confetti from "canvas-confetti";
 export function ResumeAnalyzerView() {
   const { jobs, analyzeResume, resumeAnalyses, currentUser } = usePlyace();
   const [selectedJobId, setSelectedJobId] = useState<string>(jobs[0]?.id || "");
-  const [resumeText, setResumeText] = useState<string>(
-    `Aditi Rao\nB.Tech Computer Science & Engineering\nCGPA: 8.4/10\n\nTECHNICAL SKILLS:\nLanguages & Frameworks: Python, TypeScript, React, SQL, HTML5, CSS3, Tailwind CSS\nTools & Platforms: Git, Docker, Linux, Postman\nCore Competencies: Data Structures & Algorithms, Object-Oriented Programming, Database Management Systems\n\nPROJECTS:\n1. Distributed Task Queue & Scheduler (Python, Redis, Docker)\n- Designed and built asynchronous task scheduler processing 10,000+ jobs/min with fault-tolerant retries.\n- Reduced job execution latency by 42% through connection pooling.\n\n2. Real-Time Collaborative Whiteboard (React, TypeScript, WebSockets)\n- Implemented operational transformation engine for conflict-free multi-user canvas synchronization.\n- Integrated JWT authentication and role-based canvas permissions.`
-  );
+  const [resumeText, setResumeText] = useState<string>("");
   const [loading, setLoading] = useState(false);
-  const [currentResult, setCurrentResult] = useState<ResumeAnalysis | null>(
-    resumeAnalyses[0] || null
-  );
+  const [currentResult, setCurrentResult] = useState<ResumeAnalysis | null>(null);
 
   const handleAnalyze = async () => {
     if (!resumeText.trim()) return;
@@ -258,15 +254,9 @@ export function ResumeAnalyzerView() {
                 <FileSearch className="w-7 h-7" />
               </div>
               <h3 className="font-bold text-[#0F172A] text-sm mb-1">No Active Analysis Yet</h3>
-              <p className="text-xs text-[#64748B] max-w-sm mb-4">
-                Select your target company on the left and click &apos;Analyze Resume&apos; to generate your instant ATS shortlisting breakdown.
+              <p className="text-xs text-[#64748B] max-w-sm">
+                Paste your resume on the left or upload a file, then click &apos;Analyze ATS Readiness&apos; to generate your report.
               </p>
-              <button
-                onClick={handleAnalyze}
-                className="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-[#0F172A] transition-colors"
-              >
-                Run Sample Resume
-              </button>
             </div>
           )}
         </div>

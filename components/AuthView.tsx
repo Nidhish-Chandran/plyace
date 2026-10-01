@@ -36,12 +36,12 @@ export function AuthView({ initialMode = "register", onSuccess, onBackToLanding 
   const [regName, setRegName] = useState("");
   const [regEmail, setRegEmail] = useState("");
   const [regPassword, setRegPassword] = useState("");
-  const [regBranch, setRegBranch] = useState("Computer Science & Engineering");
-  const [regBatch, setRegBatch] = useState("2023-2027");
-  const [regGradDate, setRegGradDate] = useState("2027-06-30");
-  const [regCgpa, setRegCgpa] = useState("8.2");
-  const [regBacklogs, setRegBacklogs] = useState("0");
-  const [regSkills, setRegSkills] = useState("Python, React, SQL, Data Structures");
+  const [regBranch, setRegBranch] = useState("");
+  const [regBatch, setRegBatch] = useState("");
+  const [regGradDate, setRegGradDate] = useState("");
+  const [regCgpa, setRegCgpa] = useState("");
+  const [regBacklogs, setRegBacklogs] = useState("");
+  const [regSkills, setRegSkills] = useState("");
 
   // Sign In form state
   const [loginEmail, setLoginEmail] = useState("");

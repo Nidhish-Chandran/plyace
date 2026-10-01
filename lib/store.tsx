@@ -29,6 +29,20 @@ import {
 import { getStatus, isExpiringSoon } from "./status";
 import { calculateSkillMatch } from "./match";
 
+export const GUEST_USER: UserProfile = {
+  id: "",
+  name: "",
+  email: "",
+  role: "student",
+  branch: "",
+  batch: "",
+  graduationDate: "",
+  cgpa: 0,
+  backlogs: 0,
+  skills: [],
+  points: 0,
+};
+
 interface PlyaceContextType {
   currentUser: UserProfile;
   allUsers: UserProfile[];
@@ -56,6 +70,7 @@ interface PlyaceContextType {
     skills: string[];
   }) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
+  refreshSession: () => Promise<void>;
 
   // Jobs
   jobs: Job[];
@@ -120,7 +135,7 @@ export function PlyaceProvider({ children }: { children: React.ReactNode }) {
   const [authChecked, setAuthChecked] = useState(false);
 
   const [allUsers, setAllUsers] = useState<UserProfile[]>(DEMO_USERS);
-  const [currentUser, setCurrentUserState] = useState<UserProfile>(DEMO_USERS[0]);
+  const [currentUser, setCurrentUserState] = useState<UserProfile>(GUEST_USER);
   const [simulatedDate, setSimulatedDateState] = useState<string>("2026-10-01");
   const [jobs, setJobs] = useState<Job[]>(INITIAL_JOBS);
   const [applications, setApplications] = useState<Application[]>(INITIAL_APPLICATIONS);
@@ -141,16 +156,24 @@ export function PlyaceProvider({ children }: { children: React.ReactNode }) {
     async function initSessionAndData() {
       try {
         // 1. Check server-side session cookie via /api/auth/session
-        const sessRes = await fetch("/api/auth/session");
+        const sessRes = await fetch("/api/auth/session", { cache: "no-store" });
         if (sessRes.ok) {
           const sessData = await sessRes.json();
           if (sessData.authenticated && sessData.user) {
             setCurrentUserState(sessData.user);
             setIsLoggedIn(true);
+          } else {
+            setCurrentUserState(GUEST_USER);
+            setIsLoggedIn(false);
           }
+        } else {
+          setCurrentUserState(GUEST_USER);
+          setIsLoggedIn(false);
         }
       } catch (err) {
         console.error("Session verification fetch failed:", err);
+        setCurrentUserState(GUEST_USER);
+        setIsLoggedIn(false);
       } finally {
         setAuthChecked(true);
       }
@@ -270,11 +293,41 @@ export function PlyaceProvider({ children }: { children: React.ReactNode }) {
 
   const logout = async () => {
     try {
-      await fetch("/api/auth/logout", { method: "POST" });
+      await fetch("/api/auth/logout", { method: "POST", cache: "no-store" });
+    } catch {
+      // ignore
+    }
+    try {
+      localStorage.removeItem("plyace_user_id");
+      localStorage.removeItem("plyace_apps");
+      localStorage.removeItem("plyace_violation_logs");
     } catch {
       // ignore
     }
     setIsLoggedIn(false);
+    setCurrentUserState(GUEST_USER);
+    setApplications([]);
+    setAuthChecked(true);
+  };
+
+  const refreshSession = async () => {
+    try {
+      const sessRes = await fetch("/api/auth/session", { cache: "no-store" });
+      if (sessRes.ok) {
+        const sessData = await sessRes.json();
+        if (sessData.authenticated && sessData.user) {
+          setCurrentUserState(sessData.user);
+          setIsLoggedIn(true);
+          setAuthChecked(true);
+          return;
+        }
+      }
+    } catch {
+      // ignore
+    }
+    setCurrentUserState(GUEST_USER);
+    setIsLoggedIn(false);
+    setAuthChecked(true);
   };
 
   const setSimulatedDate = (date: string) => {
@@ -683,6 +736,7 @@ export function PlyaceProvider({ children }: { children: React.ReactNode }) {
         login,
         register,
         logout,
+        refreshSession,
         jobs,
         addJob,
         applications,

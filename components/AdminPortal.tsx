@@ -49,16 +49,16 @@ export function AdminPortal({ currentAdminTab, onOpenSimulate }: AdminPortalProp
     company: "",
     title: "",
     description: "",
-    requiredSkills: "Python, SQL, Data Structures",
-    minCgpa: 7.5,
-    allowedBranches: "Computer Science & Engineering, Information Technology",
+    requiredSkills: "",
+    minCgpa: 0,
+    allowedBranches: "",
     maxBacklogs: 0,
-    deadline: "2026-10-31",
+    deadline: "",
     oppType: "full-time" as JobType,
-    packageStipend: "₹12.0 LPA",
-    location: "Bangalore, India",
+    packageStipend: "",
+    location: "",
     campusOnly: false,
-    registrationLink: "https://forms.gle/cgpu-placement-drive",
+    registrationLink: "",
   });
 
   // Announcement state

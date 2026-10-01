@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { usePlyace } from "@/lib/store";
 import { Navbar } from "./Navbar";
 import { ExpiryBanner } from "./ExpiryBanner";
@@ -32,11 +32,30 @@ interface PortalLayoutProps {
 
 export function PortalLayout({ children }: PortalLayoutProps) {
   const pathname = usePathname();
-  const { currentUser, currentStatus, jobs, applications, violationLogs } = usePlyace();
+  const router = useRouter();
+  const { currentUser, currentStatus, jobs, applications, violationLogs, isLoggedIn, authChecked, refreshSession } = usePlyace();
   const isAdmin = currentUser.role === "admin";
 
   const [showSimulateModal, setShowSimulateModal] = useState(false);
   const [showChatModal, setShowChatModal] = useState(false);
+
+  // Bfcache back-button protection: detect when page is restored from browser cache
+  useEffect(() => {
+    const handlePageShow = (event: PageTransitionEvent) => {
+      if (event.persisted) {
+        refreshSession();
+      }
+    };
+    window.addEventListener("pageshow", handlePageShow);
+    return () => window.removeEventListener("pageshow", handlePageShow);
+  }, [refreshSession]);
+
+  // Auth guard: if not authenticated, redirect immediately to login
+  useEffect(() => {
+    if (authChecked && (!isLoggedIn || !currentUser.id)) {
+      window.location.replace("/login");
+    }
+  }, [authChecked, isLoggedIn, currentUser.id]);
 
   const studentNavItems = [
     {
@@ -115,6 +134,28 @@ export function PortalLayout({ children }: PortalLayoutProps) {
   ];
 
   const navItems = isAdmin ? adminNavItems : studentNavItems;
+
+  if (!authChecked) {
+    return (
+      <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center font-sans">
+        <div className="w-10 h-10 border-4 border-[#2563EB]/20 border-t-[#2563EB] rounded-full animate-spin mb-4" />
+        <p className="text-xs font-bold text-[#1E3A8A] tracking-wider uppercase">
+          Verifying Institutional Placement Session...
+        </p>
+      </div>
+    );
+  }
+
+  if (!isLoggedIn || !currentUser.id) {
+    return (
+      <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center font-sans">
+        <div className="w-8 h-8 border-4 border-[#2563EB]/20 border-t-[#2563EB] rounded-full animate-spin mb-3" />
+        <p className="text-xs font-semibold text-[#64748B]">
+          Session ended. Redirecting to sign in...
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-[#F8FAFC]">

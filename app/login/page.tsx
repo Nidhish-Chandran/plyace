@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -18,13 +18,24 @@ import {
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, switchUserById } = usePlyace();
+  const { login, isLoggedIn, authChecked, currentUser } = usePlyace();
 
   const [roleTab, setRoleTab] = useState<"student" | "admin">("student");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // If already logged in, redirect to respective dashboard
+  useEffect(() => {
+    if (authChecked && isLoggedIn && currentUser.id) {
+      if (currentUser.role === "admin") {
+        router.replace("/admin");
+      } else {
+        router.replace("/dashboard");
+      }
+    }
+  }, [authChecked, isLoggedIn, currentUser, router]);
 
   const handleRoleChange = (role: "student" | "admin") => {
     setRoleTab(role);
@@ -42,9 +53,9 @@ export default function LoginPage() {
       const res = await login(email, password);
       if (res.success) {
         if (roleTab === "admin" || email.includes("placement.head")) {
-          router.push("/admin");
+          router.replace("/admin");
         } else {
-          router.push("/dashboard");
+          router.replace("/dashboard");
         }
       } else {
         setError(res.error || "Authentication failed. Please verify credentials.");
@@ -61,7 +72,7 @@ export default function LoginPage() {
       {/* Official Top Bar */}
       <header className="bg-white border-b border-[#E2E8F0] py-3.5 px-4 sm:px-8">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3">
+          <div className="flex items-center gap-3">
             <Image
               src="/plyace-logo.png"
               alt="Plyace"
@@ -74,14 +85,17 @@ export default function LoginPage() {
             <span className="hidden sm:inline-block text-xs font-semibold text-[#1E3A8A]">
               Career Guidance & Placement Unit (CGPU)
             </span>
-          </Link>
+          </div>
 
-          <Link
-            href="/"
-            className="text-xs font-medium text-[#64748B] hover:text-[#2563EB] transition-colors"
-          >
-            &larr; Back to Portal Home
-          </Link>
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-[#64748B] hidden sm:inline">First time applicant?</span>
+            <Link
+              href="/register"
+              className="px-3 py-1.5 rounded-xl border border-[#2563EB]/30 text-[#2563EB] hover:bg-[#2563EB]/10 font-bold text-xs transition-colors"
+            >
+              Register Account
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -207,9 +221,9 @@ export default function LoginPage() {
         <div className="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
           <span suppressHydrationWarning>&copy; {new Date().getFullYear()} Career Guidance & Placement Unit (CGPU). All rights reserved.</span>
           <div className="flex gap-4">
-            <Link href="/" className="hover:text-[#2563EB]">Placement Policy</Link>
-            <Link href="/" className="hover:text-[#2563EB]">Student Code of Conduct</Link>
-            <Link href="/" className="hover:text-[#2563EB]">Helpdesk</Link>
+            <Link href="#" className="hover:text-[#2563EB]">Placement Policy</Link>
+            <Link href="#" className="hover:text-[#2563EB]">Student Code of Conduct</Link>
+            <Link href="#" className="hover:text-[#2563EB]">Helpdesk</Link>
           </div>
         </div>
       </footer>
