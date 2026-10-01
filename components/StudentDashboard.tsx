@@ -3,6 +3,7 @@
 import React from "react";
 import { usePlyace } from "@/lib/store";
 import { Job } from "@/lib/types";
+import { formatDate } from "@/lib/status";
 import {
   Briefcase,
   FileCheck2,
@@ -218,8 +219,8 @@ export function StudentDashboard({ onNavigate, onSelectJob }: StudentDashboardPr
                   >
                     {anc.tag}
                   </span>
-                  <span className="text-[10px] text-[#64748B]">
-                    {new Date(anc.createdAt).toLocaleDateString([], { month: "short", day: "numeric" })}
+                  <span className="text-[10px] text-[#64748B]" suppressHydrationWarning>
+                    {formatDate(anc.createdAt)}
                   </span>
                 </div>
                 <h4 className="font-bold text-xs text-[#0F172A] mb-1">{anc.title}</h4>

@@ -4,6 +4,7 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePlyace } from "@/lib/store";
+import { formatDate } from "@/lib/status";
 import {
   GraduationCap,
   ShieldCheck,
@@ -164,7 +165,7 @@ export function LandingPageView() {
 
                 <div className="pt-3 border-t border-[#E2E8F0] flex items-center justify-between text-[11px] text-[#64748B]">
                   <span>Min. CGPA: <strong className="text-[#0F172A]">{job.minCgpa}</strong></span>
-                  <span>Deadline: <strong className="text-[#0F172A]">{new Date(job.deadline).toLocaleDateString()}</strong></span>
+                  <span>Deadline: <strong className="text-[#0F172A]" suppressHydrationWarning>{formatDate(job.deadline)}</strong></span>
                 </div>
               </div>
             ))}
@@ -272,7 +273,7 @@ export function LandingPageView() {
           </div>
 
           <div className="pt-6 border-t border-[#E2E8F0] flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-[#64748B]">
-            <span>&copy; {new Date().getFullYear()} Career Guidance & Placement Unit (CGPU). All rights reserved.</span>
+            <span suppressHydrationWarning>&copy; {new Date().getFullYear()} Career Guidance & Placement Unit (CGPU). All rights reserved.</span>
             <div className="flex gap-4">
               <span className="hover:text-[#2563EB] cursor-pointer">Placement Policy</span>
               <span className="hover:text-[#2563EB] cursor-pointer">Student Code of Conduct</span>

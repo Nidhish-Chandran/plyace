@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { usePlyace } from "@/lib/store";
 import { Job, ApplicationStatus, JobType } from "@/lib/types";
+import { formatDate } from "@/lib/status";
 import { StatusPill } from "./StatusPill";
 import {
   PlusCircle,
@@ -279,7 +280,7 @@ export function AdminPortal({ currentAdminTab, onOpenSimulate }: AdminPortalProp
                   <div className="text-[11px] text-slate-500 space-y-1 bg-[#F8FAFC] p-3 rounded-xl border border-[#E2E8F0]">
                     <div>&bull; Min CGPA: <strong className="text-[#0F172A]">{j.minCgpa}</strong> | Max Backlogs: <strong className="text-[#0F172A]">{j.maxBacklogs}</strong></div>
                     <div>&bull; Branches: <span className="text-[#0F172A]">{j.allowedBranches.join(", ")}</span></div>
-                    <div>&bull; Deadline: <span className="text-[#F59E0B] font-semibold">{new Date(j.deadline).toLocaleDateString()}</span></div>
+                    <div>&bull; Deadline: <span className="text-[#F59E0B] font-semibold" suppressHydrationWarning>{formatDate(j.deadline)}</span></div>
                   </div>
                 </div>
               </div>

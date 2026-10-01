@@ -2,6 +2,7 @@
 
 import React from "react";
 import { usePlyace } from "@/lib/store";
+import { formatDate } from "@/lib/status";
 import { StatusPill } from "./StatusPill";
 import {
   FileCheck2,
@@ -61,12 +62,8 @@ export function ApplicationsView({ onSelectJob }: { onSelectJob?: (jobId: string
                           <span>{app.jobTitle}</span>
                         </div>
                       </td>
-                      <td className="py-4 px-4 text-[#64748B]">
-                        {new Date(app.appliedAt).toLocaleDateString([], {
-                          month: "short",
-                          day: "numeric",
-                          year: "numeric",
-                        })}
+                      <td className="py-4 px-4 text-[#64748B]" suppressHydrationWarning>
+                        {formatDate(app.appliedAt)}
                       </td>
                       <td className="py-4 px-4">
                         <span className="font-bold text-[#2563EB] bg-[#2563EB]/10 px-2 py-0.5 rounded-md">

@@ -73,3 +73,21 @@ export function isExpiringSoon(
     daysLeft: Math.max(0, daysLeft),
   };
 }
+
+/**
+ * Deterministic date formatter ensuring 100% server and client hydration parity
+ */
+export function formatDate(dateInput: string | Date | undefined | null): string {
+  if (!dateInput) return "";
+  try {
+    const d = typeof dateInput === "string" ? new Date(dateInput) : dateInput;
+    if (isNaN(d.getTime())) return String(dateInput);
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const month = months[d.getUTCMonth()];
+    const day = String(d.getUTCDate()).padStart(2, "0");
+    const year = d.getUTCFullYear();
+    return `${day} ${month} ${year}`;
+  } catch {
+    return String(dateInput);
+  }
+}

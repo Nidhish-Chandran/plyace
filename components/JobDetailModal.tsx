@@ -5,6 +5,7 @@ import { Job } from "@/lib/types";
 import { usePlyace } from "@/lib/store";
 import { checkEligibility } from "@/lib/eligibility";
 import { calculateSkillMatch } from "@/lib/match";
+import { formatDate } from "@/lib/status";
 import {
   X,
   Building2,
@@ -103,8 +104,8 @@ export function JobDetailModal({ job, onClose, isApplied: externalIsApplied }: J
             </div>
             <div className="p-3 rounded-2xl bg-[#F8FAFC] border border-[#E2E8F0]">
               <div className="text-[11px] text-[#64748B]">Deadline</div>
-              <div className="font-bold text-sm text-[#F59E0B] mt-0.5">
-                {new Date(job.deadline).toLocaleDateString()}
+              <div className="font-bold text-sm text-[#F59E0B] mt-0.5" suppressHydrationWarning>
+                {formatDate(job.deadline)}
               </div>
             </div>
           </div>

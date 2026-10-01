@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { usePlyace } from "@/lib/store";
+import { formatDate } from "@/lib/status";
 import {
   Calendar,
   Sparkles,
@@ -151,12 +152,8 @@ export function Navbar({ onOpenSimulate }: NavbarProps) {
             >
               <Calendar className="w-3.5 h-3.5 text-[#2563EB]" />
               <span className="hidden sm:inline text-slate-500">Date:</span>
-              <span className="font-semibold text-[#1E3A8A]">
-                {new Date(simulatedDate).toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                  year: "numeric",
-                })}
+              <span className="font-semibold text-[#1E3A8A]" suppressHydrationWarning>
+                {formatDate(simulatedDate)}
               </span>
             </button>
           )}

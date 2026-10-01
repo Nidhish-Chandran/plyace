@@ -403,7 +403,7 @@ export default function RegisterPage() {
       {/* Official Footer */}
       <footer className="bg-white border-t border-[#E2E8F0] py-4 text-center text-xs text-[#64748B]">
         <div className="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <span>&copy; {new Date().getFullYear()} Career Guidance & Placement Unit (CGPU). All rights reserved.</span>
+          <span suppressHydrationWarning>&copy; {new Date().getFullYear()} Career Guidance & Placement Unit (CGPU). All rights reserved.</span>
           <div className="flex gap-4">
             <Link href="/" className="hover:text-[#2563EB]">Placement Policy</Link>
             <Link href="/" className="hover:text-[#2563EB]">Student Code of Conduct</Link>
