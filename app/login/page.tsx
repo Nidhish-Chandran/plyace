@@ -72,7 +72,7 @@ export default function LoginPage() {
       {/* Official Top Bar */}
       <header className="bg-white border-b border-[#E2E8F0] py-3.5 px-4 sm:px-8">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <Link href="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity">
             <Image
               src="/plyace-logo.png"
               alt="Plyace"
@@ -85,7 +85,7 @@ export default function LoginPage() {
             <span className="hidden sm:inline-block text-xs font-semibold text-[#1E3A8A]">
               Career Guidance & Placement Unit (CGPU)
             </span>
-          </div>
+          </Link>
 
           <div className="flex items-center gap-3">
             <span className="text-xs text-[#64748B] hidden sm:inline">First time applicant?</span>

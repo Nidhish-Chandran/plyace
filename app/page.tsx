@@ -1,18 +1,5 @@
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
-import { getSession } from "@/lib/db";
+import { LandingPageView } from "@/components/LandingPageView";
 
-export default async function HomePage() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("plyace_session")?.value;
-  const user = token ? getSession(token) : null;
-
-  if (user) {
-    if (user.role === "admin") {
-      redirect("/admin");
-    }
-    redirect("/dashboard");
-  }
-
-  redirect("/login");
+export default function HomePage() {
+  return <LandingPageView />;
 }
